@@ -2,91 +2,114 @@ from twisted.internet import reactor
 
 SECS_IN_30DAYS=60*60*24*30
 
-class PriceState(object):
+class Promotion(object):
 	def __init__(self, reactor):
-		self._stable = False
-		self._inPromotion = False
+		self._valid = None
 		self._reactor = reactor
-		self._stabilityTimer = None
-		self._promotionTimer = None
-		self._promotionValue = 0
+		self._originalPrice = 0
 
-		self._startStabilityTimer()
+	def startFrom(self, price, notifyEnd):
+		self._originalPrice = price
+		self._valid = self._reactor.callLater(\
+			SECS_IN_30DAYS, notifyEnd)
 
-	def makeUnstable(self):
-		self._stable = False
-		if not self._inPromotion:
-			self._startStabilityTimer()
+	def end(self):
+		if self._valid and self._valid.active():
+			self._valid.cancel()
 
-	def isStable(self):
-		return self._stable
+	def startPrice(self):
+		return self._originalPrice
 
-	def isInPromotion(self):
-		return self._inPromotion
+	def ok(self):
+		return (self._valid and self._valid.active())
 
-	def endPromotion(self):
-		if self._promotionTimer and self._promotionTimer.active():
-			self._promotionTimer.cancel()
-		days = self._reactor.seconds()/24/60/60
-		self._promotionTimer = None
-		self._stable = False
-		self._inPromotion = False
-		self._startStabilityTimer()
+class Stability(object):
+	def __init__(self, reactor):
+		self._pending = None
+		self._reactor = reactor
 
-	def startPromotion(self, value):
-		self._promotionValue = value
-		self._inPromotion = True
-		self._promotionTimer = self._reactor.callLater(SECS_IN_30DAYS, self.endPromotion)
+	def reset(self):
+		self._cancelPending()
+		self._startPending()
 
-	def promotionValue(self):
-		return self._promotionValue
+	def _cancelPending(self):
+		if self._pending and self._pending.active():
+			self._pending.cancel()
 
-	def _startStabilityTimer(self):
-		self._cancelStabilityTimer()
-		self._stabilityTimer = self._reactor.callLater(\
+	def _startPending(self):
+		self._pending = self._reactor.callLater(\
 			SECS_IN_30DAYS, self._becomeStable)
 
-	def _cancelStabilityTimer(self):
-		if self._stabilityTimer:
-			self._stabilityTimer.cancel()
-
 	def _becomeStable(self):
-		self._stable = True
-		self._stabilityTimer = None
+		pass
+
+	def ok(self):
+		return not self._pending.active()
+
+class State(object):
+	def __init__(self, reactor):
+		self._stability = Stability(reactor)
+		self._promotion = Promotion(reactor)
+
+		self._stability.reset()
+
+	def updateAfterPriceChange(self):
+		self._stability.reset()
+
+	def isStable(self):
+		return self._stability.ok()
+
+	def isInPromotion(self):
+		return self._promotion.ok()
+
+	def endPromotion(self):
+		self._promotion.end()
+		self._stability.reset()
+
+	def startPromotion(self, price):
+		self._promotion.startFrom(price, self._onPromotionEnd)
+
+	def _onPromotionEnd(self):
+		self._stability.reset()
+
+	def promotionPrice(self):
+		return self._promotion.startPrice()
 
 class Price:
-	def __init__(self, value, reactor=reactor):
-		self._value = value
-		self._state = PriceState(reactor)
+	def __init__(self, price, reactor=reactor):
+		self._price = price
+		self._state = State(reactor)
 
 	def stable(self):
 		return self._state.isStable()
 
-	def setValue(self, value):
-		diff = self._calculateDiffInPercentage(value)
+	def changeTo(self, price):
+		if self._price == price: return
 
-		if value > self._value:
+		diff = self._calculateDiffInPercentage(price)
+
+		if price > self._price:
 			self._state.endPromotion()
 
 		if diff >= 5 and diff <= 30 and self._state.isStable():
-			self._state.startPromotion(self._value)
+			self._state.startPromotion(self._price)
 
 		if diff > 30 and self._state.isInPromotion():
 			self._state.endPromotion()
 
-		self._state.makeUnstable()
-		self._value = value
+		self._state.updateAfterPriceChange()
+		self._price = price
 
-	def _calculateDiffInPercentage(self, value):
-		current = self._value
+	def _calculateDiffInPercentage(self, price):
+		current = self._price
 		if self._state.isInPromotion():
-			current = self._state.promotionValue()
-		diff = current - value	
+			current = self._state.promotionPrice()
+		diff = current - price	
 		diff_percent = float(diff) / current * 100.0
 		return diff_percent
 
 	def value(self):
-		return self._value
+		return self._price
 	
 	def inPromotion(self):
 		return self._state.isInPromotion()
