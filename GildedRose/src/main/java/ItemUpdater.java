@@ -5,6 +5,8 @@ public abstract class ItemUpdater {
             return new BrieUpdater();
         } else if (name.contains("Sulfuras")) {
             return new SulfurasUpdater();
+        } else if (name.contains("Backstage passes")) {
+            return new BackstageUpdater();
         } else {
             return new StandardItemUpdater();
         }
