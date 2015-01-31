@@ -10,9 +10,9 @@ public class StandardItemUpdater extends  ItemUpdater {
     protected void updateQuality(Item item, int currentSellIn, int currentQuality) {
         if (currentQuality == 0) return;
 
-        currentQuality--;
+        currentQuality -= degradationRate;
         if (currentSellIn == 0) {
-            currentQuality--;
+            currentQuality -= degradationRate;
         }
         item.setQuality(currentQuality);
     }
@@ -23,4 +23,5 @@ public class StandardItemUpdater extends  ItemUpdater {
         }
     }
 
+    protected int degradationRate = 1;
 }

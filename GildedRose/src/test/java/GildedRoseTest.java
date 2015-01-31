@@ -131,6 +131,12 @@ public class GildedRoseTest {
         assertEquals(80, sulfuras.getQuality());
     }
 
+    @Test
+    public void conjuredDoubleRateDegradation() {
+        GildedRose.add(conjured);
+        passDays(1);
+        assertEquals(conjuredInitialQuality-2, conjured.getQuality());
+    }
 
 
     private void passDays(int days) {
@@ -167,4 +173,8 @@ public class GildedRoseTest {
     int backstageInitialSellIn = 15;
     int backstageInitialQuality = 20;
     Item backstage = new Item("Backstage passes to a TAFKAL80ETC concert", backstageInitialSellIn, backstageInitialQuality);
+
+    int conjuredInitialSellIn = 3;
+    int conjuredInitialQuality = 6;
+    Item conjured = new Item("Conjured Mana Cake", conjuredInitialSellIn, conjuredInitialQuality);
 }
