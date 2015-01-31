@@ -44,10 +44,13 @@ public class GildedRose {
     }
 
 
-    public static void updateQuality()
-    {
-        for (int i = 0; i < items.size(); i++)
-        {
+    public static void updateQuality() {
+        for (int i = 0; i < items.size(); i++) {
+            Item current  = items.get(i);
+            ItemUpdater updater = ItemUpdater.picker(current);
+            updater.update(current);
+
+            /*
             if ((!"Aged Brie".equals(items.get(i).getName())) && !"Backstage passes to a TAFKAL80ETC concert".equals(items.get(i).getName())) 
             {
                 if (items.get(i).getQuality() > 0)
@@ -117,7 +120,7 @@ public class GildedRose {
                     }
                 }
             }
+            */
         }
     }
-
 }

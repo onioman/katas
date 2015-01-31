@@ -31,7 +31,7 @@ public class GildedRoseTest {
     @Test
     public void noNegativeQuality() {
         GildedRose.add(vest);
-        passDays(vestInitialQuality);
+        passDays(vestInitialQuality+1);
         assertEquals(0, vest.getQuality());
     }
 
