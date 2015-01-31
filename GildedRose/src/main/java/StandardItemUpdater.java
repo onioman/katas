@@ -7,18 +7,17 @@ public class StandardItemUpdater extends  ItemUpdater {
         updateQuality(item, currentSellIn, currentQuality);
     }
 
-    private void updateQuality(Item item, int currentSellIn, int currentQuality) {
+    protected void updateQuality(Item item, int currentSellIn, int currentQuality) {
+        if (currentQuality == 0) return;
+
         currentQuality--;
         if (currentSellIn == 0) {
             currentQuality--;
         }
-        if (currentQuality > 50) {
-            currentQuality = 50;
-        }
         item.setQuality(currentQuality);
     }
 
-    private void updateSellIn(Item item, int currentSellIn) {
+    protected void updateSellIn(Item item, int currentSellIn) {
         if (currentSellIn > 0) {
             item.setSellIn(currentSellIn-1);
         }
