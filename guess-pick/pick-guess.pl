@@ -1,9 +1,19 @@
 #!/usr/bin/perl
 use Switch;
+use IO::Handle;
+
 
 my @possible_feedback = ('+', '-');
 my @range = (1, 100);
 my $guess = 50;
+my $times_guess = 0;
+my @real_range = (1, 100);
+
+sub print_value {
+	my $value = shift(@_);
+	STDOUT->printflush($value, "\n");
+}
+
 
 sub binary_guess {
 	my $feedback = shift(@_);
@@ -20,10 +30,6 @@ sub binary_guess {
 	@range = ($low, $high);
 	return $guess;
 }
-
-
-my $times_guess = 0;
-my @real_range = (1, 100);
 
 sub bin_qua_guess {
 	my $feedback = shift(@_);
@@ -87,14 +93,14 @@ sub guess {
 	# Give the initial guess
 	$guessers{$guesser}->($feedback);
 	$times_guess = 1;
-	print $guess,"\n";
+	print_value($guess);
 	
 	# Update the guess
 	while (chomp(my $feedback = <STDIN>)) {
 		if ($feedback ne "=") {
 			my $guess = $guessers{$guesser}->($feedback);
 			$times_guess = $times_guess + 1;
-			print $guess, "\n";
+			print_value($guess);
 		} else {
 			last;
 		}
@@ -104,7 +110,7 @@ sub guess {
 sub pick {
 	my ($low, $high) = @range;
 	my $pick = int(rand($high)) + $low;
-	print $pick,"\n"	
+	print_value($pick);
 }
 
 # Pick or guess?
