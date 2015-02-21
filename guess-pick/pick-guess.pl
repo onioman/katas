@@ -79,11 +79,27 @@ sub calculate_solvable_range {
 	return ($low, $high);
 }
 
+sub almost_binary_guess {
+	my $feedback = shift(@_);
+	my $deviation = -4 + int(rand(8));
+	my $bin_guess = binary_guess($feedback);
+	my ($low, $high) = @range;
+	$guess = $bin_guess + $deviation;
+	if ($guess > $high) {
+		$guess = $high;
+	}
+	if ($guess < $low) {
+		$guess = $low;
+	}
+	return $guess
+}
+
 
 my %guessers = (
 	binary => \&binary_guess,
 	bin_qua => \&bin_qua_guess,
-	solvable => \&solvable_guess
+	solvable => \&solvable_guess,
+	almost_bin => \&almost_binary_guess
 );
 
 sub guess {
