@@ -123,9 +123,57 @@ sub guess {
 	}
 }
 
-sub pick {
+sub random_pick {
 	my ($low, $high) = @range;
 	my $pick = int(rand($high)) + $low;
+	return $pick;
+}
+
+sub binary_expand {
+	my @pivots = @_;
+	my @expanded = ();
+	my $len = $#pivots;
+	for my $i (0 .. $len) {
+		push @expanded, $pivots[$i];
+		if ($i != $len) {
+			push @expanded, int(($pivots[$i] + $pivots[$i+1])/2);
+		}
+	}
+	return @expanded;
+}
+
+sub nobinary_pick {
+	my @expanded = @range;
+	for my $i (0..5) {
+		@expanded = binary_expand(@expanded);		
+	}
+	my @all = (1..100);
+
+	my %count = ();
+	my @diff = ();
+	foreach $elem (@expanded, @all) { $count{$elem}++ }
+	foreach $elem (keys %count) {
+		if ($count{$elem} == 1) {
+			push @diff, $elem;
+		}
+	}
+
+	my $selected = int(rand($#diff));
+	return $diff[$selected];
+}
+
+
+my %pickers = (
+	random => \&random_pick,
+	nobinary => \&nobinary_pick
+);
+
+
+sub pick {
+	#XXX: why?
+	$picker = (keys %pickers)[rand keys %pickers];
+
+	my $pick = $pickers{$picker}->();
 	print_value($pick);
 }
 
