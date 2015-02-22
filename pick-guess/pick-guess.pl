@@ -7,7 +7,6 @@ my @possible_feedback = ('+', '-');
 my @range = (1, 100);
 my $guess = 50;
 my $times_guess = 0;
-my @real_range = (1, 100);
 
 sub print_value {
 	my $value = shift(@_);
@@ -19,8 +18,8 @@ sub binary_guess {
 	my $feedback = shift(@_);
 	my ($low, $high) = @range;
 	switch ($feedback) {
-		case "+" { $low = $guess+1 }
-		case "-" { $high = $guess-1 }
+		case "+" { $low = $guess < $range[1] ? $guess+1 : $guess }
+		case "-" { $high = $guess > $range[0] ? $guess-1 : $guess; }
 		else     { }
 	}
 	{
@@ -37,8 +36,7 @@ sub bin_qua_guess {
 	switch($times_guess) {
 		case 1 {
 			binary_guess($feedback);
-			@real_range = @range;
-			my $assumed_feeback = int(rand(2));
+			my $assumed_feeback = int(rand(0+@possible_feedback));
 			binary_guess($possible_feedback[$assumed_feeback]);
 		}
 		else  { 
@@ -54,8 +52,7 @@ sub solvable_guess {
 	switch($times_guess) {
 		case 1 {
 			binary_guess($feedback);
-			@real_range = @range;
-			@range = calculate_solvable_range();
+			@range = calculate_solvable_range(4);
 			binary_guess();
 		}
 		else  { 
@@ -66,22 +63,24 @@ sub solvable_guess {
 }
 
 sub calculate_solvable_range {
-	my $size = 15;
+	my $max_attempts = shift(@_);	
+	my $size = 2**$max_attempts - 1;
 	my ($low, $high) = @range;
 	my $sections = int(($high - $low) / $size);
 	my $selected = int(rand($sections));
 
 	$low = $low + $selected*$size;
 	$high = $low + $size;
-	if ($high > $real_range[1]) {
-		$high = $real_range[1];
+	if ($high > $range[1]) {
+		$high = $range[1];
 	}
 	return ($low, $high);
 }
 
 sub almost_binary_guess {
 	my $feedback = shift(@_);
-	my $deviation = -4 + int(rand(8));
+	my $max_deviation = 4;
+	my $deviation = -$max_deviation + int(rand($max_deviation*2));
 	my $bin_guess = binary_guess($feedback);
 	my ($low, $high) = @range;
 	$guess = $bin_guess + $deviation;
@@ -105,9 +104,11 @@ my %guessers = (
 sub guess {
 	#XXX: why?
 	$guesser = (keys %guessers)[rand keys %guessers];
+	$guesser = almost_bin;
 
 	# Give the initial guess
 	$guessers{$guesser}->($feedback);
+	print "The range is @range \n";
 	$times_guess = 1;
 	print_value($guess);
 	
@@ -116,6 +117,7 @@ sub guess {
 		if ($feedback ne "=") {
 			my $guess = $guessers{$guesser}->($feedback);
 			$times_guess = $times_guess + 1;
+			print "The range is @range \n";
 			print_value($guess);
 		} else {
 			last;
