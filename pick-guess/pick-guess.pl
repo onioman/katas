@@ -104,20 +104,17 @@ my %guessers = (
 sub guess {
 	#XXX: why?
 	$guesser = (keys %guessers)[rand keys %guessers];
-	$guesser = almost_bin;
 
 	# Give the initial guess
 	$guessers{$guesser}->($feedback);
-	print "The range is @range \n";
 	$times_guess = 1;
 	print_value($guess);
-	
+
 	# Update the guess
 	while (chomp(my $feedback = <STDIN>)) {
 		if ($feedback ne "=") {
 			my $guess = $guessers{$guesser}->($feedback);
 			$times_guess = $times_guess + 1;
-			print "The range is @range \n";
 			print_value($guess);
 		} else {
 			last;
@@ -147,7 +144,7 @@ sub binary_expand {
 sub nobinary_pick {
 	my @expanded = @range;
 	for my $i (0..5) {
-		@expanded = binary_expand(@expanded);		
+		@expanded = binary_expand(@expanded);
 	}
 	my @all = (1..100);
 
