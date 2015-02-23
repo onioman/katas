@@ -9,6 +9,7 @@ Pensando quizá en un futuro con memoria, tanto pick como guess tienen diferente
 estrategias siendo una elegida al azar.
 
 ###Pick
+
 	- Random, selecciona un valor aleatoriamente sin más.
   	- No binary, calcula los valores que un guesser binario escogería (no muy 
   	  eficientemente porque tarda lo suyo, 44s!!!) y no los tiene en cuenta al 
@@ -16,6 +17,7 @@ estrategias siendo una elegida al azar.
 
 ###Guess
 Los guessers son muy parecidos y reflejan mi evolución:
+
 	- Binary, búsqueda binaria sin más.
  	- Bin-qua, búsqueda binaria, pero en la segunda vuelta hace un división 
  	  extra asumiendo aleatoriamente un feedback.
