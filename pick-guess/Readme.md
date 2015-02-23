@@ -25,4 +25,4 @@ Los guessers son muy parecidos y reflejan mi evolución:
 	  que sea capaz de resolver (2 ** intentos restantes - 1).
 	- NearBinary, búsqueda binaria añadiendo un offset (+/- 4) aleatorio al pívot.
 
-Lo realmente interesante hubiera sido enfrentarlos y elegir el mejor, pero me faltó tiempo.1
+Lo realmente interesante hubiera sido enfrentarlos y elegir el mejor, pero me faltó tiempo.
